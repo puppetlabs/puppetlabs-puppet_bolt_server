@@ -3,7 +3,7 @@
 # This class installs and configures Bolt
 #
 class puppet_bolt_server::server (
-  # Optional[String] $package_source = 'https://yum.puppet.com/puppet-tools-release-el-8.noarch.rpm'
+  Sensitive[String] $puppet_token,
 ) {
   package { 'puppet-tools-release':
     ensure => present,
@@ -14,6 +14,13 @@ class puppet_bolt_server::server (
     name    => 'puppet-bolt',
     ensure  => present,
     require => Package['puppet-tools-release'],
+  }
+
+  file { 'puppet-token':
+    ensure  => present,
+    path    => '/root/.puppetlabs/token',
+    content => $puppet_token.unwrap,
+    require => Package['puppet-bolt'],
   }
 
   file { '/root/.puppetlabs/etc/bolt/bolt-defaults.yaml':
@@ -33,6 +40,6 @@ class puppet_bolt_server::server (
         'server_urls' => ['http://localhost:8080'],
       },
     }),
-    require => Package['puppet-bolt'],
+    require => File['puppet-token'],
   }
 }
