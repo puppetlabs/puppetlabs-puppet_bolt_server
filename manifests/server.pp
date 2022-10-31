@@ -15,4 +15,24 @@ class puppet_bolt_server::server (
     ensure  => present,
     require => Package['puppet-tools-release'],
   }
+
+  file { '/root/.puppetlabs/etc/bolt/bolt-defaults.yaml':
+    ensure  => present,
+    content => to_yaml({
+      'analytics'   => false,
+      'inventory-config'  => {
+        'transport' => 'pcp',
+        'pcp'       => {
+          'cacert'           => '/etc/puppetlabs/puppet/ssl/certs/ca.pem',
+          'service-url'      => 'https://ip-10-138-1-227.eu-central-1.compute.internal:8143',
+          'token-file:'      => '~/.puppetlabs/token',
+          'task-environment' => 'production',
+        },
+      },
+      'puppetdb' => {
+        'server_urls' => ['http://localhost:8080'],
+      },
+    }),
+    require => Package['puppet-bolt'],
+  }
 }
