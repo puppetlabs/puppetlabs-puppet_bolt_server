@@ -3,7 +3,8 @@
 # This class installs and configures Bolt
 #
 class puppet_bolt_server::server (
-  Sensitive[String] $puppet_token,
+  # Sensitive[String] $puppet_token,
+  Optional[String]  $puppet_token = undef,
 ) {
   package { 'puppet-tools-release':
     ensure => present,
@@ -19,7 +20,7 @@ class puppet_bolt_server::server (
   file { 'puppet-token':
     ensure  => file,
     path    => '/root/.puppetlabs/token',
-    content => "${puppet_token.unwrap}",
+    content => $puppet_token,
     require => Package['puppet-bolt'],
   }
 
