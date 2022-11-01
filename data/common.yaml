@@ -1,4 +1,4 @@
---- {}
+---
 lookup_options:
   puppet_bolt_server::puppet_token:
     convert_to: "Sensitive"
