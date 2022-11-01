@@ -9,13 +9,18 @@
     {
       "name": "puppetlabs/stdlib",
       "version_requirement": ">= 6.0.0 < 8.5.0"
+    },
+    {
+      "name": "reidmv-taskplan",
+      "version_requirement": "0.2.3"
     }
   ],
   "operatingsystem_support": [
     {
       "operatingsystem": "CentOS",
       "operatingsystemrelease": [
-        "7"
+        "7",
+        "8"
       ]
     },
     {
@@ -27,6 +32,7 @@
     {
       "operatingsystem": "RedHat",
       "operatingsystemrelease": [
+        "7",
         "8"
       ]
     },
@@ -34,6 +40,12 @@
       "operatingsystem": "Scientific",
       "operatingsystemrelease": [
         "7"
+      ]
+    },
+    {
+      "operatingsystem": "AlmaLinux",
+      "operatingsystemrelease": [
+        "8"
       ]
     }
   ],
