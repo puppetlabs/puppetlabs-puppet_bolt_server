@@ -12,6 +12,16 @@ describe 'puppet_bolt_server' do
       }
 
       it { is_expected.to compile }
+
+      context 'installs bolt' do
+        it { is_expected.to contain_package('puppet-tools-release') }
+        it { is_expected.to contain_package('puppet-bolt') }
+      end
+
+      context 'configures bolt' do
+        it { is_expected.to contain_file('puppet-token') }
+        it { is_expected.to contain_file('/root/.puppetlabs/etc/bolt/bolt-defaults.yaml') }
+      end
     end
   end
 end

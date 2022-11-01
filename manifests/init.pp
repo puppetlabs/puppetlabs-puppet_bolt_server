@@ -10,7 +10,6 @@
 #
 class puppet_bolt_server (
   Sensitive[String] $puppet_token,
-  # Optional[String]  $puppet_token = undef,
 ) {
   package { 'puppet-tools-release':
     ensure => present,
