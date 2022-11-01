@@ -37,7 +37,7 @@ class puppet_bolt_server (
           },
         },
         'puppetdb'         => {
-          'server_urls' => "['http://localhost:8080']",
+          'server_urls' => ['http://localhost:8080'],
         },
     }),
     require => File['puppet-token'],
