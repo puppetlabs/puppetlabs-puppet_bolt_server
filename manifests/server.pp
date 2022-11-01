@@ -19,7 +19,7 @@ class puppet_bolt_server::server (
   file { 'puppet-token':
     ensure  => present,
     path    => '/root/.puppetlabs/token',
-    content => $puppet_token.unwrap,
+    content => "${puppet_token.unwrap}",
     require => Package['puppet-bolt'],
   }
 
