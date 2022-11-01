@@ -21,7 +21,6 @@ class puppet_bolt_server (
     ensure  => file,
     path    => '/root/.puppetlabs/token',
     content => $puppet_token.unwrap,
-    require => Package['puppet-bolt'],
   }
 
   file { '/root/.puppetlabs/etc/bolt/bolt-defaults.yaml':
