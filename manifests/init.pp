@@ -1,6 +1,12 @@
-# @summary Bolt Server
+# @summary
+#   This Bolt Server module will install and configure Bolt to use the PCP protocol
 #
-# This class installs and configures Bolt
+# @example Basic usage
+#   include puppet_bolt_server
+#
+# @param puppet_token
+#   This should be a token with permissions to launch Orchestrator jobs.  
+#   Generate a token with a lifetime of 1 year: puppet access login --lifetime 1y 
 #
 class puppet_bolt_server (
   Sensitive[String] $puppet_token,
