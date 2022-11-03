@@ -7,7 +7,6 @@ This module configures a installs and configures Bolt to use a local PuppetDB an
 1. [Description](#description)
 1. [Setup - The basics of getting started with puppet_bolt_server](#setup)
     * [What puppet_bolt_server affects](#what-puppet_bolt_server-affects)
-    * [Beginning with puppet_bolt_server](#beginning-with-puppet_bolt_server)
 1. [Installation - Step by step guide](#installation)
 1. [Usage - Configuration options and additional functionality](#usage)
 1. [Limitations - OS compatibility, etc.](#limitations)
@@ -27,8 +26,6 @@ The `puppet_bolt_server` module will perform the following activities:
     * Use the PCP protocol
     * Use the local PuppetDB
     * Consume a Puppet token
-
-### Beginning with puppet_bolt_server
 
 ## Installation
 
