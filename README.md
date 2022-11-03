@@ -1,117 +1,101 @@
 # puppet_bolt_server
 
-Welcome to your new module. A short overview of the generated parts can be found
-in the [PDK documentation][1].
-
-The README template below provides a starting point with details about what
-information to include in your README.
+This module configures a installs and configures Bolt to use a local PuppetDB and the PCP transport
 
 ## Table of Contents
 
 1. [Description](#description)
 1. [Setup - The basics of getting started with puppet_bolt_server](#setup)
     * [What puppet_bolt_server affects](#what-puppet_bolt_server-affects)
-    * [Setup requirements](#setup-requirements)
     * [Beginning with puppet_bolt_server](#beginning-with-puppet_bolt_server)
+1. [Installation - Step by step guide](#installation)
 1. [Usage - Configuration options and additional functionality](#usage)
 1. [Limitations - OS compatibility, etc.](#limitations)
-1. [Development - Guide for contributing to the module](#development)
 
 ## Description
 
-Briefly tell users why they might want to use your module. Explain what your
-module does and what kind of problems users can solve with it.
-
-This should be a fairly short description helps the user decide if your module
-is what they want.
+The goal of this module is to configure a dedicated Puppet Enterprise compiler to become a Bolt Server, with the intention of helping Orchestrator by taking the majority of the load when performing multiple concurrent plans runs. A compiler is ideal because it already has access to Puppet Enterprise, code manager and to its local PuppetDB.
 
 ## Setup
 
-### What puppet_bolt_server affects **OPTIONAL**
+### What puppet_bolt_server affects
 
-If it's obvious what your module touches, you can skip this section. For
-example, folks can probably figure out that your mysql_instance module affects
-their MySQL instances.
+The `puppet_bolt_server` module will perform the following activities:
 
-If there's more that they should know about, though, this is the place to
-mention:
-
-* Files, packages, services, or operations that the module will alter, impact,
-  or execute.
-* Dependencies that your module automatically installs.
-* Warnings or other important notices.
-
-### Setup Requirements **OPTIONAL**
-
-If your module requires anything extra before setting up (pluginsync enabled,
-another module, etc.), mention it here.
-
-If your most recent release breaks compatibility or requires particular steps
-for upgrading, you might want to include an additional "Upgrading" section here.
+* Install Bolt in the server
+* Create the `/root/.puppetlabs/etc/bolt/bolt-defaults.yaml` file with custom configuration to:
+    * Use the PCP protocol
+    * Use the local PuppetDB
+    * Consume a Puppet token
 
 ### Beginning with puppet_bolt_server
 
-The very basic steps needed for a user to get the module up and running. This
-can include setup steps, if necessary, or it can be an example of the most basic
-use of the module.
+## Installation
+
+**Quickstart:** Configure the `puppet_bolt_server` using the PE Console
+
+This setup will help you to quickly configure the `puppet_bolt_server` in your existing PE server.
+
+1. Add the [puppetlabs_puppet_bolt_server](https://github.com/puppetlabs/puppetlabs-puppet_bolt_server) to your control repo.
+1. Add a new Node Group from the PE Console
+
+```
+  Parent name: PE Infrastructure
+  Group name: Bolt Server
+  Environment: production
+```
+
+1. Add the class `puppet_bolt_server` to the Bolt Sever group created in the step above.
+1. Add your dedicated compiler to the group using the Rules tab.
+1. Add your puppet token (Sensitive string) in the Configuration data tab
+    1. Tip: Generate a token with a lifetime of 1 year: `puppet access login --lifetime 1y`
+
+```
+  Class: puppet_bolt_server
+  Parameter: puppet_token
+  Value: 'insert-your-puppet-token-here'
+```
+
+1. Commit your changes.
+1. Run Puppet on this Node Group.
 
 ## Usage
 
-Include usage examples for common use cases in the **Usage** section. Show your
-users how to use your module to solve problems, and be sure to include code
-examples. Include three to five examples of the most important or common tasks a
-user can accomplish with your module. Show users how to accomplish more complex
-tasks that involve different types, classes, and functions working in tandem.
+After Puppet applies the changes described in the installation steps, you should end up with the following files in the Bolt server:
 
-## Reference
+- `/root/.puppetlabs/etc/bolt/bolt-defaults.yaml`
+- `/root/.puppetlabs/token`
 
-This section is deprecated. Instead, add reference information to your code as
-Puppet Strings comments, and then use Strings to generate a REFERENCE.md in your
-module. For details on how to add code comments and generate documentation with
-Strings, see the [Puppet Strings documentation][2] and [style guide][3].
-
-If you aren't ready to use Strings yet, manually create a REFERENCE.md in the
-root of your module directory and list out each of your module's classes,
-defined types, facts, functions, Puppet tasks, task plans, and resource types
-and providers, along with the parameters for each.
-
-For each element (class, defined type, function, and so on), list:
-
-* The data type, if applicable.
-* A description of what the element does.
-* Valid values, if the data type doesn't make it obvious.
-* Default value, if any.
-
-For example:
+To test that everything was configured properly, we can run any Bolt plan that runs a PuppetDB query, for example:
 
 ```
-### `pet::cat`
+# /root/Projects/local_plan/plans/test.pp
 
-#### Parameters
-
-##### `meow`
-
-Enables vocalization in your cat. Valid options: 'string'.
-
-Default: 'medium-loud'.
+plan local_plan::test(
+){
+  $query_results = puppetdb_query("nodes[]{}")
+  out::message("Hello world from the Bolt Server, query results: ${query_results}")
+}
 ```
+
+Run the Bolt plan:
+
+`bolt plan run local_plan::test`
+
+We should see the PuppetDB query results in the terminal, and if we inspect the `puppetdb-access.log` there should be a log with a call to the local PuppetDB with a 200 Ok HTTP status:
+
+```
+$ less /var/log/puppetlabs/puppetdb/puppetdb-access.log
+
+127.0.0.1 - - [01/Nov/2022:15:56:21 +0000] "POST /pdb/query/v4 HTTP/1.1" 200 1793 "-" "HTTPClient/1.0 (2.8.3, ruby 2.7.6 (2022-04-12))" 99 21 -
+```
+
 
 ## Limitations
 
-In the Limitations section, list any incompatibilities, known issues, or other
-warnings.
+- This first version of the `puppet_bolt_server` can only run on RHEL 7 and 8 based systems.
+- Requires Puppet ">= 6.21.0 < 8.0.0"
+- **Warning** There is no rate limit to run Plans, we tested this module in our lab and it successfully handled up to 200 concurrent plans with a Bolt Server with the following specs:
+    - 8 GB RAM
+    - CPU Intel Xeon Platinum 8000 series, 4-cores
 
-## Development
-
-In the Development section, tell other users the ground rules for contributing
-to your project and how they should submit their work.
-
-## Release Notes/Contributors/Etc. **Optional**
-
-If you aren't using changelog, put your release notes here (though you should
-consider using changelog). You can also add any additional sections you feel are
-necessary or important to include here. Please use the `##` header.
-
-[1]: https://puppet.com/docs/pdk/latest/pdk_generating_modules.html
-[2]: https://puppet.com/docs/puppet/latest/puppet_strings.html
-[3]: https://puppet.com/docs/puppet/latest/puppet_strings_style.html
