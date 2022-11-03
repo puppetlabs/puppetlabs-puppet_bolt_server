@@ -1,6 +1,6 @@
 # puppet_bolt_server
 
-This module configures a installs and configures Bolt to use a local PuppetDB and the PCP transport
+This module installs and configures Bolt to use a local PuppetDB and the PCP transport
 
 ## Table of Contents
 
