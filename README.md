@@ -24,6 +24,7 @@ The `puppet_bolt_server` module will perform the following activities:
 * Install Bolt on the node.
 * Install the [`task_plan` module](https://forge.puppet.com/modules/reidmv/taskplan).
     * The intended use for `task_plan` is to run Plans in the Bolt server, especifically by telling it to run it on a target node, in this case, our Bolt server.
+    * We describe more about how this work in the [Usage section](#running-a-plan-via-taskplan-from-the-primary-server)
 * Create the `/root/.puppetlabs/etc/bolt/bolt-defaults.yaml` file with custom configuration to:
     * Use the PCP transport
     * Use the local PuppetDB for queries
