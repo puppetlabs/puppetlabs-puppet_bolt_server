@@ -95,6 +95,16 @@ We recommend to install the [`taskplan` module](https://forge.puppet.com/modules
 
 - The intended use for `taskplan` is to run Plans in the Bolt server, especifically by telling it to run it on a target node, in this case, our Bolt server.
 
+**Running a Plan on the Bolt Server**
+
+This is an overview of the internal process when you offload the Plan execution from the PE Primary server to the Bolt server:
+
+1. The taskplan Task is executed to run a Plan from the Primary server targeting our Bolt server
+1. Orchestrator will connect to the PCP agent on the Bolt server and run the Task there.
+1. The Bolt server's agent will finally run the Plan on it.
+
+![bolt-server-process](diagrams/bolt-server-exec-processes.png "Bolt server execution process")
+
 **Example**
 
 From the Primary server we will run the `taskplan` task, targetting our Bolt server. Here is an example you can use:
