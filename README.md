@@ -21,7 +21,7 @@ This module aims to configure a dedicated Puppet Enterprise compiler to become a
 
 The `puppet_bolt_server` module will perform the following activities:
 
-* Install Bolt in the server
+* Install Bolt on the node
 * Create the `/root/.puppetlabs/etc/bolt/bolt-defaults.yaml` file with custom configuration to:
     * Use the PCP transport
     * Use the local PuppetDB for queries
@@ -45,9 +45,9 @@ This setup will help you to quickly configure the `puppet_bolt_server` in your e
 1. Add the class `puppet_bolt_server` to the Bolt Sever group created in the step above.
 1. Add your compiler dedicated to running Bolt to the group using the Rules tab. Note that this compiler should not be in the compiler pool for catalog compilation.
 1. Add your puppet token (Sensitive string) in the Configuration data tab
-    1. Tip:
-        1. We recommend you create a service user inside PE RBAC and choose an appropriate lifetime for its token.
-        1. Generate a token with a lifetime of 1 year: `puppet access login --lifetime 1y`
+
+    1. We recommend you create a service user inside PE RBAC and choose an appropriate lifetime for its token.
+    1. Generate a token with a lifetime of 1 year: `puppet access login --lifetime 1y`
 
 ```
   Class: puppet_bolt_server
