@@ -22,9 +22,6 @@ This module aims to configure a dedicated Puppet Enterprise compiler to become a
 The `puppet_bolt_server` module will perform the following activities:
 
 * Install Bolt on the node.
-* Install the [`task_plan` module](https://forge.puppet.com/modules/reidmv/taskplan).
-    * The intended use for `task_plan` is to run Plans in the Bolt server, especifically by telling it to run it on a target node, in this case, our Bolt server.
-    * We describe more about how this work in the [Usage section](#running-a-plan-via-taskplan-from-the-primary-server)
 * Create the `/root/.puppetlabs/etc/bolt/bolt-defaults.yaml` file with custom configuration to:
     * Use the PCP transport
     * Use the local PuppetDB for queries
@@ -94,7 +91,13 @@ $ less /var/log/puppetlabs/puppetdb/puppetdb-access.log
 
 ### Running a Plan via taskplan from the Primary Server
 
-From the Primary server we will run the `task_plan` task, targetting our Bolt server. Here is an example you can use:
+We recommend to install the [`taskplan` module](https://forge.puppet.com/modules/reidmv/taskplan) in your control-repo.
+
+- The intended use for `taskplan` is to run Plans in the Bolt server, especifically by telling it to run it on a target node, in this case, our Bolt server.
+
+**Example**
+
+From the Primary server we will run the `taskplan` task, targetting our Bolt server. Here is an example you can use:
 
 ```
 # test_params.json
