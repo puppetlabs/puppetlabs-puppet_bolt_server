@@ -21,7 +21,9 @@ This module aims to configure a dedicated Puppet Enterprise compiler to become a
 
 The `puppet_bolt_server` module will perform the following activities:
 
-* Install Bolt on the node
+* Install Bolt on the node.
+* Install the [`task_plan` module](https://forge.puppet.com/modules/reidmv/taskplan).
+    * The intended use for `task_plan` is to run Plans in the Bolt server, especifically by telling it to run it on a target node, in this case, our Bolt server.
 * Create the `/root/.puppetlabs/etc/bolt/bolt-defaults.yaml` file with custom configuration to:
     * Use the PCP transport
     * Use the local PuppetDB for queries
@@ -89,6 +91,39 @@ $ less /var/log/puppetlabs/puppetdb/puppetdb-access.log
 127.0.0.1 - - [01/Nov/2022:15:56:21 +0000] "POST /pdb/query/v4 HTTP/1.1" 200 1793 "-" "HTTPClient/1.0 (2.8.3, ruby 2.7.6 (2022-04-12))" 99 21 -
 ```
 
+### Running a Plan via taskplan from the Primary Server
+
+From the Primary server we will run the `task_plan` task, targetting our Bolt server. Here is an example you can use:
+
+```
+# test_params.json
+
+{
+  "environment" : "production",
+  "task" : "taskplan",
+  "params" : {
+    "plan" : "a-test-plan",
+    "params" : { "message": "Hello world!" },
+    "debug" : true
+  },
+  "scope" : {
+    "nodes" : ["insert-here-the-bolt-server-certname"]
+  }
+}
+```
+
+Make sure to change the `params.plan`, `params.params`, and the `scope.nodes` to your own case.
+
+Now to run the task we will use `curl`:
+
+```
+auth_header="X-Authentication: $(puppet-access show)"
+uri="https://$(puppet config print server):8143/orchestrator/v1/command/task"
+
+curl -d "@test_params.json" --insecure --header "$auth_header" "$uri"
+```
+
+What will happen now is that PE Orchestrator will run the Task, connect to the PCP agent on the given node (our Bolt server) and submit the Task on the Bolt server's agent which is the one who will finally run the Plan. While all this process sounds tedious and cumbersome, it's a clever way to offload the Plan execution from the PE primary to the Bolt server, the result is a minimum resource consumption on the Primary Server.
 
 ## Limitations
 
