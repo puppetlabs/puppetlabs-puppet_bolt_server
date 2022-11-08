@@ -13,7 +13,7 @@ This module installs and configures Bolt to use a local PuppetDB and the PCP tra
 
 ## Description
 
-The goal of this module is to configure a dedicated Puppet Enterprise compiler to become a Bolt Server, with the intention of helping Orchestrator by taking the majority of the load when performing multiple concurrent plans runs. A compiler is ideal because it already has access to Puppet Enterprise, code manager and to its local PuppetDB.
+This module aims to configure a dedicated Puppet Enterprise compiler to become a Bolt Server, with the intention of offloading plan execution from Orchestrator on the Primary server, to Bolt on the Bolt server. A compiler is ideal because it already has access to Puppet Enterprise, code manager, and its local PuppetDB.
 
 ## Setup
 
@@ -23,8 +23,8 @@ The `puppet_bolt_server` module will perform the following activities:
 
 * Install Bolt in the server
 * Create the `/root/.puppetlabs/etc/bolt/bolt-defaults.yaml` file with custom configuration to:
-    * Use the PCP protocol
-    * Use the local PuppetDB
+    * Use the PCP transport
+    * Use the local PuppetDB for queries
     * Consume a Puppet token
 
 ## Installation
@@ -43,9 +43,11 @@ This setup will help you to quickly configure the `puppet_bolt_server` in your e
 ```
 
 1. Add the class `puppet_bolt_server` to the Bolt Sever group created in the step above.
-1. Add your dedicated compiler to the group using the Rules tab.
+1. Add your compiler dedicated to running Bolt to the group using the Rules tab. Note that this compiler should not be in the compiler pool for catalog compilation.
 1. Add your puppet token (Sensitive string) in the Configuration data tab
-    1. Tip: Generate a token with a lifetime of 1 year: `puppet access login --lifetime 1y`
+    1. Tip:
+        1. We recommend you create a service user inside PE RBAC and choose an appropriate lifetime for its token.
+        1. Generate a token with a lifetime of 1 year: `puppet access login --lifetime 1y`
 
 ```
   Class: puppet_bolt_server
@@ -90,7 +92,7 @@ $ less /var/log/puppetlabs/puppetdb/puppetdb-access.log
 
 ## Limitations
 
-- This first version of the `puppet_bolt_server` can only run on RHEL 7 and 8 based systems.
+- This first version of the `puppet_bolt_server` has been tested only on RHEL 7 and 8 based systems.
 - Requires Puppet ">= 6.21.0 < 8.0.0"
 - **Warning** There is no rate limit to run Plans, we tested this module in our lab and it successfully handled up to 200 concurrent plans with a Bolt Server with the following specs:
     - 8 GB RAM
