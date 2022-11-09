@@ -99,9 +99,10 @@ We recommend to install the [`taskplan` module](https://forge.puppet.com/modules
 
 This is an overview of the internal process when you offload the Plan execution from the PE Primary server to the Bolt server:
 
-1. The request to run the Task on the Bolt server is submitted to Orchestrator
-1. Orchestrator runs the Task on the Bolt server
-1. The task runs the Plan on the Bolt server
+1. Someone requests Orchestrator to run a task on the Bolt server
+1. The task runs on the Bolt server
+1. The task starts Bolt with the "bolt plan run" command
+1. Bolt starts and runs the plan
 
 ![bolt-server-process](diagrams/bolt-server-exec-processes.png "Bolt server execution process")
 
