@@ -36,24 +36,24 @@ This setup will help you to quickly configure the `puppet_bolt_server` in your e
 1. Add the [puppetlabs-puppet_bolt_server](https://github.com/puppetlabs/puppetlabs-puppet_bolt_server) to your control repo.
 1. Add a new Node Group from the PE Console
 
-```
-  Parent name: PE Infrastructure
-  Group name: Bolt Server
-  Environment: production
-```
+   ```
+     Parent name: PE Infrastructure
+     Group name: Bolt Server
+     Environment: production
+   ```
 
 1. Add the class `puppet_bolt_server` to the Bolt Sever group created in the step above.
 1. Add your compiler dedicated to running Bolt to the group using the Rules tab. Note that this compiler should not be in the compiler pool for catalog compilation.
 1. Add your puppet token (Sensitive string) in the Configuration data tab
 
-    1. We recommend you create a service user inside PE RBAC and choose an appropriate lifetime for its token.
-    1. Generate a token with a lifetime of 1 year: `puppet access login --lifetime 1y`
+   - We recommend you create a service user inside PE RBAC and choose an appropriate lifetime for its token.
+   - Generate a token with a lifetime of 1 year: `puppet access login --lifetime 1y`
 
-```
-  Class: puppet_bolt_server
-  Parameter: puppet_token
-  Value: 'insert-your-puppet-token-here'
-```
+   ```
+    Class: puppet_bolt_server
+    Parameter: puppet_token
+    Value: 'insert-your-puppet-token-here'
+   ```
 
 1. Commit your changes.
 1. Run Puppet on this Node Group.
@@ -93,22 +93,22 @@ $ less /var/log/puppetlabs/puppetdb/puppetdb-access.log
 
 We recommend to install the [`taskplan` module](https://forge.puppet.com/modules/reidmv/taskplan).
 
-- The intended use for `taskplan` is to run Plans in the Bolt server, especifically by telling it to run it on a target node, in this case, our Bolt server.
+- The `taskplan` module allows us to run a Task that runs a Plan using Bolt.
 
 **Running a Plan on the Bolt Server**
 
 This is an overview of the internal process when you offload the Plan execution from the PE Primary server to the Bolt server:
 
-1. Someone requests Orchestrator to run a task on the Bolt server
-1. The task runs on the Bolt server
-1. The task starts Bolt with the "bolt plan run" command
-1. Bolt starts and runs the plan
+1. Someone requests Orchestrator to run the `taskplan` Task on the Bolt server
+1. The `taskplan` Task runs on the Bolt server
+1. The Task starts Bolt with the "bolt plan run" command
+1. Bolt starts and runs the Plan
 
 ![bolt-server-process](diagrams/bolt-server-exec-processes.png "Bolt server execution process")
 
 **Example 1**
 
-In this example, we will use `bolt task run` to run the `taskplan` Task on the Bolt server.
+In this example, we will use `puppet task run` to run the `taskplan` Task on the Bolt server.
 
 Required parameters:
 
@@ -121,7 +121,7 @@ From the PE Primary server CLI we will run:
 puppet task run taskplan --params '{"plan":"a-test-plan", "params":{"message": "Hello world!"}, "debug":true}' -n insert-here-the-bolt-server-certname
 ```
 
-This will trigger a Task run (`taskplan`) on the Bolt Server and the task will run the Plan we specified in the parameters directly on the Bolt server. While all this process sounds tedious and cumbersome, it's a clever way to offload the Plan execution from the PE primary to the Bolt server, the result is a minimum resource consumption on the Primary Server.
+This will trigger a Task run (`taskplan`) and the task will run the Plan we specified in the parameters directly on the Bolt server. This is a simple way to offload Plan execution from Orchestrator to a dedicated Bolt server, thereby alleviating CPU and memory load on the Primary Server.
 
 **Example 2**
 
