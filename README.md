@@ -1,117 +1,167 @@
 # puppet_bolt_server
 
-Welcome to your new module. A short overview of the generated parts can be found
-in the [PDK documentation][1].
-
-The README template below provides a starting point with details about what
-information to include in your README.
+This module installs and configures Bolt to use a local PuppetDB and the PCP transport
 
 ## Table of Contents
 
 1. [Description](#description)
 1. [Setup - The basics of getting started with puppet_bolt_server](#setup)
     * [What puppet_bolt_server affects](#what-puppet_bolt_server-affects)
-    * [Setup requirements](#setup-requirements)
-    * [Beginning with puppet_bolt_server](#beginning-with-puppet_bolt_server)
+1. [Installation - Step by step guide](#installation)
 1. [Usage - Configuration options and additional functionality](#usage)
 1. [Limitations - OS compatibility, etc.](#limitations)
-1. [Development - Guide for contributing to the module](#development)
 
 ## Description
 
-Briefly tell users why they might want to use your module. Explain what your
-module does and what kind of problems users can solve with it.
-
-This should be a fairly short description helps the user decide if your module
-is what they want.
+This module aims to configure a dedicated Puppet Enterprise compiler to become a Bolt Server, with the intention of offloading plan execution from Orchestrator on the Primary server, to Bolt on the Bolt server. A compiler is ideal because it already has access to Puppet Enterprise, code manager, and its local PuppetDB.
 
 ## Setup
 
-### What puppet_bolt_server affects **OPTIONAL**
+### What puppet_bolt_server affects
 
-If it's obvious what your module touches, you can skip this section. For
-example, folks can probably figure out that your mysql_instance module affects
-their MySQL instances.
+The `puppet_bolt_server` module will perform the following activities:
 
-If there's more that they should know about, though, this is the place to
-mention:
+* Install Bolt on the node.
+* Create the `/root/.puppetlabs/etc/bolt/bolt-defaults.yaml` file with custom configuration to:
+    * Use the PCP transport
+    * Use the local PuppetDB for queries
+    * Consume a Puppet token
 
-* Files, packages, services, or operations that the module will alter, impact,
-  or execute.
-* Dependencies that your module automatically installs.
-* Warnings or other important notices.
+## Installation
 
-### Setup Requirements **OPTIONAL**
+**Quickstart:** Configure the `puppet_bolt_server` using the PE Console
 
-If your module requires anything extra before setting up (pluginsync enabled,
-another module, etc.), mention it here.
+This setup will help you to quickly configure the `puppet_bolt_server` in your existing PE server.
 
-If your most recent release breaks compatibility or requires particular steps
-for upgrading, you might want to include an additional "Upgrading" section here.
+1. Add the [puppetlabs-puppet_bolt_server](https://github.com/puppetlabs/puppetlabs-puppet_bolt_server) to your control repo.
+1. Add a new Node Group from the PE Console
 
-### Beginning with puppet_bolt_server
+   ```
+     Parent name: PE Infrastructure
+     Group name: Bolt Server
+     Environment: production
+   ```
 
-The very basic steps needed for a user to get the module up and running. This
-can include setup steps, if necessary, or it can be an example of the most basic
-use of the module.
+1. Add the class `puppet_bolt_server` to the Bolt Sever group created in the step above.
+1. Add your compiler dedicated to running Bolt to the group using the Rules tab. Note that this compiler should not be in the compiler pool for catalog compilation.
+1. Add your puppet token (Sensitive string) in the Configuration data tab
+
+   - We recommend you create a service user inside PE RBAC and choose an appropriate lifetime for its token.
+   - Generate a token with a lifetime of 1 year: `puppet access login --lifetime 1y`
+
+   ```
+    Class: puppet_bolt_server
+    Parameter: puppet_token
+    Value: 'insert-your-puppet-token-here'
+   ```
+
+1. Commit your changes.
+1. Run Puppet on this Node Group.
 
 ## Usage
 
-Include usage examples for common use cases in the **Usage** section. Show your
-users how to use your module to solve problems, and be sure to include code
-examples. Include three to five examples of the most important or common tasks a
-user can accomplish with your module. Show users how to accomplish more complex
-tasks that involve different types, classes, and functions working in tandem.
+After Puppet applies the changes described in the installation steps, you should end up with the following files in the Bolt server:
 
-## Reference
+- `/root/.puppetlabs/etc/bolt/bolt-defaults.yaml`
+- `/root/.puppetlabs/token`
 
-This section is deprecated. Instead, add reference information to your code as
-Puppet Strings comments, and then use Strings to generate a REFERENCE.md in your
-module. For details on how to add code comments and generate documentation with
-Strings, see the [Puppet Strings documentation][2] and [style guide][3].
-
-If you aren't ready to use Strings yet, manually create a REFERENCE.md in the
-root of your module directory and list out each of your module's classes,
-defined types, facts, functions, Puppet tasks, task plans, and resource types
-and providers, along with the parameters for each.
-
-For each element (class, defined type, function, and so on), list:
-
-* The data type, if applicable.
-* A description of what the element does.
-* Valid values, if the data type doesn't make it obvious.
-* Default value, if any.
-
-For example:
+To test that everything was configured properly, we can run any Bolt plan that runs a PuppetDB query, for example:
 
 ```
-### `pet::cat`
+# /root/Projects/local_plan/plans/test.pp
 
-#### Parameters
+plan local_plan::test(
+){
+  $query_results = puppetdb_query("nodes[]{}")
+  out::message("Hello world from the Bolt Server, query results: ${query_results}")
+}
+```
 
-##### `meow`
+Run the Bolt plan:
 
-Enables vocalization in your cat. Valid options: 'string'.
+`bolt plan run local_plan::test`
 
-Default: 'medium-loud'.
+We should see the PuppetDB query results in the terminal, and if we inspect the `puppetdb-access.log` there should be a log with a call to the local PuppetDB with a 200 Ok HTTP status:
+
+```
+$ less /var/log/puppetlabs/puppetdb/puppetdb-access.log
+
+127.0.0.1 - - [01/Nov/2022:15:56:21 +0000] "POST /pdb/query/v4 HTTP/1.1" 200 1793 "-" "HTTPClient/1.0 (2.8.3, ruby 2.7.6 (2022-04-12))" 99 21 -
+```
+
+### Running a Plan via taskplan from the Primary Server
+
+We recommend to install the [`taskplan` module](https://forge.puppet.com/modules/reidmv/taskplan).
+
+- The `taskplan` module allows us to run a Task that runs a Plan using Bolt.
+
+**Running a Plan on the Bolt Server**
+
+This is an overview of the internal process when you offload the Plan execution from the PE Primary server to the Bolt server:
+
+1. Someone requests Orchestrator to run the `taskplan` Task on the Bolt server
+1. The `taskplan` Task runs on the Bolt server
+1. The Task starts Bolt with the "bolt plan run" command
+1. Bolt starts and runs the Plan
+
+![bolt-server-process](diagrams/bolt-server-exec-processes.png "Bolt server execution process")
+
+**Example 1**
+
+In this example, we will use `puppet task run` to run the `taskplan` Task on the Bolt server.
+
+Required parameters:
+
+- Choose one of your existing basic Plans, or create one that receives a parameter, `message` in this case.
+- Use the certname of your Bolt Server
+
+From the PE Primary server CLI we will run:
+
+```
+puppet task run taskplan --params '{"plan":"a-test-plan", "params":{"message": "Hello world!"}, "debug":true}' -n insert-here-the-bolt-server-certname
+```
+
+This will trigger a Task run (`taskplan`) and the task will run the Plan we specified in the parameters directly on the Bolt server. This is a simple way to offload Plan execution from Orchestrator to a dedicated Bolt server, thereby alleviating CPU and memory load on the Primary Server.
+
+**Example 2**
+
+Now in this 2nd example, we will use the Orchestrator API directly to trigger a Task run. This can be done from any system that has the Puppet RBAC token and has connectivity to the PE primary on port 8143.
+
+We will run the `taskplan` task again, targetting our Bolt server. Here is an example you can use:
+
+```
+# test_params.json
+
+{
+  "environment" : "production",
+  "task" : "taskplan",
+  "params" : {
+    "plan" : "a-test-plan",
+    "params" : { "message": "Hello world!" },
+    "debug" : true
+  },
+  "scope" : {
+    "nodes" : ["insert-here-the-bolt-server-certname"]
+  }
+}
+```
+
+Make sure to change the `params.plan`, `params.params`, and the `scope.nodes` to your own case.
+
+Now to run the task we will use `curl`:
+
+```
+auth_header="X-Authentication: $(puppet-access show)"
+uri="https://$(puppet config print server):8143/orchestrator/v1/command/task"
+
+curl -d "@test_params.json" --insecure --header "$auth_header" "$uri"
 ```
 
 ## Limitations
 
-In the Limitations section, list any incompatibilities, known issues, or other
-warnings.
+- This first version of the `puppet_bolt_server` has been tested only on RHEL 7 and 8 based systems.
+- Requires Puppet ">= 6.21.0 < 8.0.0"
+- **Warning** There is no rate limit to run Plans, we tested this module in our lab and it successfully handled up to 200 concurrent plans with a Bolt Server with the following specs:
+    - 8 GB RAM
+    - CPU Intel Xeon Platinum 8000 series, 4-cores
 
-## Development
-
-In the Development section, tell other users the ground rules for contributing
-to your project and how they should submit their work.
-
-## Release Notes/Contributors/Etc. **Optional**
-
-If you aren't using changelog, put your release notes here (though you should
-consider using changelog). You can also add any additional sections you feel are
-necessary or important to include here. Please use the `##` header.
-
-[1]: https://puppet.com/docs/pdk/latest/pdk_generating_modules.html
-[2]: https://puppet.com/docs/puppet/latest/puppet_strings.html
-[3]: https://puppet.com/docs/puppet/latest/puppet_strings_style.html
