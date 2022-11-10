@@ -33,8 +33,8 @@ class puppet_bolt_server (
     content => to_yaml ( {
         'modulepath' => {
           'server_urls' => [
-            '"/etc/puppetlabs/code/environments/production/site-modules"',
-            '"/etc/puppetlabs/code/environments/production/modules"',
+            '/etc/puppetlabs/code/environments/production/site-modules',
+            '/etc/puppetlabs/code/environments/production/modules',
           ],
         },
     }),
