@@ -31,12 +31,10 @@ class puppet_bolt_server (
   file { '/root/.puppetlabs/bolt/bolt-project.yaml':
     ensure  => file,
     content => to_yaml ( {
-        'modulepath' => {
-          'server_urls' => [
-            '/etc/puppetlabs/code/environments/production/site-modules',
-            '/etc/puppetlabs/code/environments/production/modules',
-          ],
-        },
+        'modulepath' => [
+          '/etc/puppetlabs/code/environments/production/site-modules',
+          '/etc/puppetlabs/code/environments/production/modules',
+        ],
     }),
   }
 
