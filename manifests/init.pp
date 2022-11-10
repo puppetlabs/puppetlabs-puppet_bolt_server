@@ -28,6 +28,18 @@ class puppet_bolt_server (
     content => $puppet_token.unwrap,
   }
 
+  file { '/root/.puppetlabs/bolt/bolt-project.yaml':
+    ensure  => file,
+    content => to_yaml ( {
+        'modulepath' => {
+          'server_urls' => [
+            '"/etc/puppetlabs/code/environments/production/site-modules"',
+            '"/etc/puppetlabs/code/environments/production/modules"',
+          ],
+        },
+    }),
+  }
+
   file { '/root/.puppetlabs/etc/bolt/bolt-defaults.yaml':
     ensure  => file,
     content => to_yaml ( {
