@@ -161,6 +161,7 @@ curl -d "@test_params.json" --insecure --header "$auth_header" "$uri"
 
 - This first version of the `puppet_bolt_server` has been tested only on RHEL 7 and 8 based systems.
 - Requires Puppet ">= 6.21.0 < 8.0.0"
+- Currently, you can only run Plans from the Production environment.
 - **Warning** There is no rate limit to run Plans, we tested this module in our lab and it successfully handled up to 200 concurrent plans with a Bolt Server with the following specs:
     - 8 GB RAM
     - CPU Intel Xeon Platinum 8000 series, 4-cores
