@@ -9,6 +9,7 @@ describe 'puppet_bolt_server' do
       let(:params) { { puppet_token: sensitive('secret_token_here') } }
 
       it { is_expected.to compile }
+      it { is_expected.to have_resource_count(5) }
 
       context 'installs bolt' do
         it { is_expected.to contain_package('puppet-tools-release') }
