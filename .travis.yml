@@ -12,17 +12,14 @@ before_install:
   - '[ -z "$RUBYGEMS_VERSION" ] || (yes || true) | gem update --system $RUBYGEMS_VERSION'
   - gem --version
   - bundle -v
-before_script:
-  - wget https://apt.puppet.com/puppet-tools-release-xenial.deb
-  - sudo dpkg -i puppet-tools-release-xenial.deb
-  - sudo apt-get update
-  - sudo apt-get install pdk -y
 script:
-  - 'pdk validate'
+  - 'bundle exec rake $CHECK'
 bundler_args: --without system_tests
 rvm:
+  - 2.5.7
   - 2.7.6
 stages:
+  - static
   - spec
   - acceptance
   -
@@ -32,9 +29,14 @@ jobs:
   fast_finish: true
   include:
     -
-      env: PUPPET_GEM_VERSION="~> 7.16.0" CHECK=parallel_spec
+      env: CHECK="validate lint check rubocop"
+      stage: static
+    -
+      env: PUPPET_GEM_VERSION="~> 6.0" CHECK=parallel_spec
+      rvm: 2.5.7
+    -
+      env: PUPPET_GEM_VERSION="~> 7.20.0" CHECK=parallel_spec
       rvm: 2.7.6
-      stage: spec
     -
       env: DEPLOY_TO_FORGE=yes
       stage: deploy
