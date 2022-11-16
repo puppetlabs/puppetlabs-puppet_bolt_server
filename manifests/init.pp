@@ -25,7 +25,7 @@ class puppet_bolt_server (
   file { 'puppet-token':
     ensure  => file,
     path    => '/root/.puppetlabs/token',
-    content => $puppet_token.unwrap,
+    content  => $puppet_token.unwrap,
   }
 
   file { '/root/.puppetlabs/bolt/bolt-project.yaml':
