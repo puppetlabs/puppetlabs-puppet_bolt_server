@@ -3,26 +3,15 @@ os: linux
 dist: xenial
 language: ruby
 cache: bundler
-before_install:
-  - bundle -v
-  - rm -f Gemfile.lock
-  - "# Update system gems if requested. This is useful to temporarily workaround troubles in the test runner"
-  - "# See https://github.com/puppetlabs/pdk-templates/commit/705154d5c437796b821691b707156e1b056d244f for an example of how this was used"
-  - "# Ignore exit code of SIGPIPE'd yes to not fail with shell's pipefail set"
-  - '[ -z "$RUBYGEMS_VERSION" ] || (yes || true) | gem update --system $RUBYGEMS_VERSION'
-  - gem --version
-  - bundle -v
 before_script:
   - wget https://apt.puppet.com/puppet-tools-release-xenial.deb
   - sudo dpkg -i puppet-tools-release-xenial.deb
   - sudo apt-get update
   - sudo apt-get install pdk -y
 script:
-  - 'pdk validate'
-bundler_args: --without system_tests
-rvm:
-  - 2.7.6
+  - 'pdk $CHECK'
 stages:
+  - static
   - spec
   - acceptance
   -
@@ -32,8 +21,13 @@ jobs:
   fast_finish: true
   include:
     -
-      env: PUPPET_GEM_VERSION="~> 7.16.0" CHECK=parallel_spec
-      rvm: 2.7.6
+      env: CHECK="validate --puppet-version=7.4.1" # PE 2021.7
+      stage: static
+    -
+      env: CHECK="test unit --puppet-version=6.21.1" # PE 2019.8
+      stage: spec
+    -
+      env: CHECK="test unit --puppet-version=7.4.1"
       stage: spec
     -
       env: DEPLOY_TO_FORGE=yes
