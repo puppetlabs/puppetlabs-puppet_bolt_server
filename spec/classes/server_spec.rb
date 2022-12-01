@@ -9,7 +9,7 @@ describe 'puppet_bolt_server' do
       let(:params) { { puppet_token: sensitive('secret_token_here') } }
 
       it { is_expected.to compile }
-      it { is_expected.to have_resource_count(5) }
+      it { is_expected.to have_resource_count(9) }
 
       context 'installs bolt' do
         it { is_expected.to contain_package('puppet-tools-release') }
@@ -17,6 +17,10 @@ describe 'puppet_bolt_server' do
       end
 
       context 'configures bolt' do
+        it { is_expected.to contain_file('/root/.puppetlabs') }
+        it { is_expected.to contain_file('/root/.puppetlabs/bolt') }
+        it { is_expected.to contain_file('/root/.puppetlabs/etc') }
+        it { is_expected.to contain_file('/root/.puppetlabs/etc/bolt') }
         it { is_expected.to contain_file('puppet-token') }
         it { is_expected.to contain_file('/root/.puppetlabs/bolt/bolt-project.yaml') }
         it { is_expected.to contain_file('/root/.puppetlabs/etc/bolt/bolt-defaults.yaml') }

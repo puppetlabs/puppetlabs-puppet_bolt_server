@@ -5,8 +5,8 @@
 #   include puppet_bolt_server
 #
 # @param puppet_token
-#   This should be a token with permissions to launch Orchestrator jobs.  
-#   Generate a token with a lifetime of 1 year: puppet access login --lifetime 1y 
+#   This should be a token with permissions to launch Orchestrator jobs.
+#   Generate a token with a lifetime of 1 year: puppet access login --lifetime 1y
 #
 class puppet_bolt_server (
   Sensitive[String] $puppet_token,
@@ -22,10 +22,16 @@ class puppet_bolt_server (
     require => Package['puppet-tools-release'],
   }
 
+  $pl_root = '/root/.puppetlabs'
+  file { [$pl_root, "${pl_root}/bolt", "${pl_root}/etc", "${pl_root}/etc/bolt"]:
+    ensure => directory,
+  }
+
   file { 'puppet-token':
     ensure  => file,
     path    => '/root/.puppetlabs/token',
     content => $puppet_token.unwrap,
+    require => File[$pl_root],
   }
 
   file { '/root/.puppetlabs/bolt/bolt-project.yaml':
@@ -36,6 +42,7 @@ class puppet_bolt_server (
           '/etc/puppetlabs/code/environments/production/modules',
         ],
     }),
+    require => File["${pl_root}/bolt"],
   }
 
   file { '/root/.puppetlabs/etc/bolt/bolt-defaults.yaml':
@@ -55,6 +62,6 @@ class puppet_bolt_server (
           'server_urls' => ['http://localhost:8080'],
         },
     }),
-    require => File['puppet-token'],
+    require => File['puppet-token', "${pl_root}/etc/bolt"],
   }
 }
