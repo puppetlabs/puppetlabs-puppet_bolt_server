@@ -42,7 +42,7 @@ class puppet_bolt_server (
           '/etc/puppetlabs/code/environments/production/modules',
         ],
         'log'        => {
-          '/var/log/puppetlabs/bolt-server.log' => {
+          '/var/log/puppetlabs/bolt-server/bolt-server.log' => {
             'append' => true,
             'level'  => 'info',
           },
