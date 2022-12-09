@@ -34,6 +34,20 @@ class puppet_bolt_server (
     require => File[$pl_root],
   }
 
+  $pl_logs_base = '/var/log/puppetlabs'
+  file { "${pl_logs_base}/bolt-server":
+    ensure  => directory,
+    owner   => 'root',
+    group   => 'root',
+    recurse => true,
+    mode    => '0755',
+  }
+
+  file { "${pl_logs_base}/bolt-server/bolt-server.log":
+    ensure  => file,
+    require => File["${pl_logs_base}/bolt-server"],
+  }
+
   file { '/root/.puppetlabs/bolt/bolt-project.yaml':
     ensure  => file,
     content => to_yaml( {
@@ -48,7 +62,7 @@ class puppet_bolt_server (
           },
         },
     }),
-    require => File["${pl_root}/bolt"],
+    require => File["${pl_root}/bolt", "${pl_logs_base}/bolt-server/bolt-server.log"],
   }
 
   file { '/root/.puppetlabs/etc/bolt/bolt-defaults.yaml':
