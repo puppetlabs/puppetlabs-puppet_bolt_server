@@ -41,6 +41,12 @@ class puppet_bolt_server (
           '/etc/puppetlabs/code/environments/production/site-modules',
           '/etc/puppetlabs/code/environments/production/modules',
         ],
+        'log'        => {
+          '/var/log/puppetlabs/bolt-server.log' => {
+            'append' => true,
+            'level'  => 'info',
+          },
+        },
     }),
     require => File["${pl_root}/bolt"],
   }
