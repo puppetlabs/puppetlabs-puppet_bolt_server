@@ -58,7 +58,7 @@ class puppet_bolt_server (
         'log'        => {
           '/var/log/puppetlabs/bolt-server/bolt-server.log' => {
             'append' => true,
-            'level'  => 'info',
+            'level'  => 'trace',
           },
         },
     }),
