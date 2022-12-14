@@ -161,13 +161,13 @@ curl -d "@test_params.json" --insecure --header "$auth_header" "$uri"
 
 ## Recommendations
 
-Based on the results of the load test, we know that each additional (concurrent) 50 plans require about 4 GiB to run successfully. As explained in the limitations section, in this early version  `puppet_bolt_server` there are no limits on memory consumption, the bolt processes will continue to use more and more memory until the system becomes completely unresponsive.
-
-Our recommendation is to run a maximum of 200 concurrent plans, allocating 24 GiB RAM for it, this will give a bit of room in case of unexpected spikes of plans beyond 200.
+Based on the results of the load test, we know that each additional (concurrent) 50 plans require about 4 GiB to run successfully. As explained in the limitations section, in this early version  `puppet_bolt_server` there are no limits on memory consumption, the bolt processes will continue to use more and more memory until the system becomes completely unresponsive. In our tests, we used 24 GiB of RAM but we noticed the thin margin of memory left during the test, this is dangerous since we could run out of memory.
 
 These are the machine specs of our servers:
   - 24 GiB RAM
   - CPU Intel Xeon Platinum 8000 series, 4 cores
+
+Our recommendation is to run a maximum of 200 concurrent plans, allocating **28 GiB RAM** for it, this will give a bit of room in case of unexpected spikes of plans beyond 200.
 
 For education purposes here are two charts that show how the Bolt server will behave in the scenario of running 200 concurrent plans:
 
