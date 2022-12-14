@@ -24,7 +24,7 @@ class puppet_bolt_server (
   }
 
   package { 'puppet-bolt':
-    ensure  => present,
+    ensure  => '3.26.2',
     name    => 'puppet-bolt',
     require => Package['puppet-tools-release'],
   }
