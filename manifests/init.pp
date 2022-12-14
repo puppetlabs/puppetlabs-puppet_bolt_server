@@ -40,7 +40,7 @@ class puppet_bolt_server (
     owner   => 'root',
     group   => 'root',
     recurse => true,
-    mode    => '0755',
+    mode    => '0750',
   }
 
   file { "${pl_logs_base}/bolt-server/bolt-server.log":
@@ -62,7 +62,7 @@ class puppet_bolt_server (
           },
         },
     }),
-    require => File["${pl_root}/bolt", "${pl_logs_base}/bolt-server/bolt-server.log"],
+    require => File["${pl_root}/bolt"],
   }
 
   file { '/root/.puppetlabs/etc/bolt/bolt-defaults.yaml':
