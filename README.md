@@ -26,13 +26,20 @@ The `puppet_bolt_server` module performs these activities:
 
 ## Dependencies
 
-The `puppet_bolt_server` depends on the [`apply_helpers`](https://forge.puppet.com/modules/puppetlabs/apply_helpers/readme) module, it will install helper tasks that are used by the `apply()` function in Bolt.
+1. `apply_helpers`
+    - The `puppet_bolt_server` depends on the [`apply_helpers`](https://forge.puppet.com/modules/puppetlabs/apply_helpers/readme)  module, it will install helper tasks that are used by the `apply()` function in Bolt.
 
-To install it, make sure to add it to the Puppetfile in your control-repo
+      To install it, make sure to add it to the Puppetfile in your control-repo
 
-```
-mod 'puppetlabs-apply_helpers', '0.3.0'
-```
+      ```
+      mod 'puppetlabs-apply_helpers', '0.3.0'
+      ```
+1. `taskplan`
+    - The [`taskplan`](https://forge.puppet.com/modules/reidmv/taskplan/plans) module allows us to run Puppet task plans, using Bolt, via a task
+
+      ```
+      mod 'reidmv-taskplan', '0.2.3'
+      ```
 
 ## Installation
 
