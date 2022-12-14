@@ -5,6 +5,7 @@ This module installs and configures Bolt to use a local PuppetDB and the Puppet 
 ## Table of Contents
 
 1. [Description](#description)
+1. [Dependencies](#dependencies)
 1. [Installation](#installation)
 1. [Usage](#usage)
 1. [Limitations](#limitations)
@@ -22,6 +23,16 @@ The `puppet_bolt_server` module performs these activities:
     * Use the PCP transport.
     * Use the local PuppetDB for queries.
     * Consume a Puppet token.
+
+## Dependencies
+
+The `puppet_bolt_server` depends on the [`apply_helpers`](https://forge.puppet.com/modules/puppetlabs/apply_helpers/readme) module, it will install helper tasks that are used by the `apply()` function in Bolt.
+
+To install it, make sure to add it to the Puppetfile in your control-repo
+
+```
+mod 'puppetlabs-apply_helpers', '0.3.0'
+```
 
 ## Installation
 
