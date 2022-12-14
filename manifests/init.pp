@@ -8,8 +8,15 @@
 #   This should be a token with permissions to launch Orchestrator jobs.
 #   Generate a token with a lifetime of 1 year: puppet access login --lifetime 1y
 #
+# @param bolt_log_level
+#   This Enum (String) configures the log level in the bolt-project configuration file
+#   By default the log level is set to 'debug'
+#   For more information, please read the Bolt logs doc:
+#     https://puppet.com/docs/bolt/latest/logs.html#log-levels
+#
 class puppet_bolt_server (
   Sensitive[String] $puppet_token,
+  Enum['trace', 'debug', 'info', 'warn', 'error', 'fatal'] $bolt_log_level  = 'debug',
 ) {
   package { 'puppet-tools-release':
     ensure => present,
@@ -58,7 +65,7 @@ class puppet_bolt_server (
         'log'        => {
           '/var/log/puppetlabs/bolt-server/bolt-server.log' => {
             'append' => true,
-            'level'  => 'trace',
+            'level'  => $bolt_log_level,
           },
         },
     }),
