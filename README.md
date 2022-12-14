@@ -157,7 +157,20 @@ curl -d "@test_params.json" --insecure --header "$auth_header" "$uri"
 - `puppet_bolt_server` is tested only on RHEL 7 and 8 based systems.
 - Requires Puppet >= 6.21.0 <= 7.20.0
 - This module only supports running plans from the Production environment.
-- **Warning:** There is no rate limit to run plans. Tests showed this module could successfully handle up to 200 concurrent plans on a Bolt server with these specs:
-    - 16 GB RAM
-    - CPU Intel Xeon Platinum 8000 series, 4 cores
+- **Warning:** There is no rate limit to run plans, and you need to pay attention to the VM specification since the available memory is directly related to how many concurrent plans you can run.
 
+## Recommendations
+
+Based on the results of the load test, we know that each additional (concurrent) 50 plans requires about 4 GiB in order to run succesfully. As explained in the limitations section, in this early version  `puppet_bolt_server` there are no limits in memory consumption, the bolt processes will continue to use more and more memory until the system becomes completly unresponsive.
+
+Our recommendation is to run a maximum of 200 concurrent plans, allocating 24 GiB RAM for it, this will give a bit of room in case of unexpected spikes of plans beyond 200.
+
+These are the machine specs of our servers:
+  - 24 GiB RAM
+  - CPU Intel Xeon Platinum 8000 series, 4 cores
+
+For education purposes here are two charts that show how the Bolt server will behave in the scenario of running 200 concurrent plans:
+
+![bolt-server-process](diagrams/load-testing-results-cpu-usage.png "CPU usage")
+
+![bolt-server-process](diagrams/load-testing-results-ram-usage.png "Memory used")
