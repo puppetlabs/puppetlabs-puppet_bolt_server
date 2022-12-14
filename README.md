@@ -165,7 +165,7 @@ Based on the results of the load test, we know that each additional (concurrent)
 
 These are the machine specs of our servers:
   - 24 GiB RAM
-  - CPU Intel Xeon Platinum 8000 series, 4 cores
+  - CPU Intel Broadwell x86/64, 6 cores
 
 Our recommendation is to run a maximum of 200 concurrent plans, allocating **28 GiB RAM** for it, this will give a bit of room in case of unexpected spikes of plans beyond 200.
 
