@@ -5,6 +5,7 @@ This module installs and configures Bolt to use a local PuppetDB and the Puppet 
 ## Table of Contents
 
 1. [Description](#description)
+1. [Dependencies](#dependencies)
 1. [Installation](#installation)
 1. [Usage](#usage)
 1. [Limitations](#limitations)
@@ -22,6 +23,23 @@ The `puppet_bolt_server` module performs these activities:
     * Use the PCP transport.
     * Use the local PuppetDB for queries.
     * Consume a Puppet token.
+
+## Dependencies
+
+1. `apply_helpers`
+    - The `puppet_bolt_server` depends on the [`apply_helpers`](https://forge.puppet.com/modules/puppetlabs/apply_helpers/readme)  module, it will install helper tasks that are used by the `apply()` function in Bolt.
+
+      To install it, make sure to add it to the Puppetfile in your control-repo
+
+      ```
+      mod 'puppetlabs-apply_helpers', '0.3.0'
+      ```
+1. `taskplan`
+    - The [`taskplan`](https://forge.puppet.com/modules/reidmv/taskplan/plans) module allows us to run Puppet task plans, using Bolt, via a task
+
+      ```
+      mod 'reidmv-taskplan', '0.2.3'
+      ```
 
 ## Installation
 
@@ -165,7 +183,7 @@ Based on the results of the load test, we know that each additional (concurrent)
 
 These are the machine specs of our servers:
   - 24 GiB RAM
-  - CPU Intel Xeon Platinum 8000 series, 4 cores
+  - CPU Intel Broadwell x86/64, 6 cores
 
 Our recommendation is to run a maximum of 200 concurrent plans, allocating **28 GiB RAM** for it, this will give a bit of room in case of unexpected spikes of plans beyond 200.
 
