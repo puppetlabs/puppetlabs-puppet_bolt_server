@@ -24,7 +24,7 @@ class puppet_bolt_server (
   }
 
   package { 'puppet-bolt':
-    ensure  => present,
+    ensure  => '3.26.2',
     name    => 'puppet-bolt',
     require => Package['puppet-tools-release'],
   }
@@ -63,6 +63,7 @@ class puppet_bolt_server (
           '/etc/puppetlabs/code/environments/production/modules',
         ],
         'log'        => {
+          'bolt-debug.log'                                  => disable,
           '/var/log/puppetlabs/bolt-server/bolt-server.log' => {
             'append' => true,
             'level'  => $bolt_log_level,
