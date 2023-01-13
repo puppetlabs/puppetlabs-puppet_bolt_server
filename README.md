@@ -103,13 +103,13 @@ $ less /var/log/puppetlabs/puppetdb/puppetdb-access.log
 
 ## Logs
 
-By default this module will create the log file under
+By default, this module will create the log file under
 
     /var/log/puppetlabs/bolt-server/bolt-server.log
 
 The log level is set to 'debug'. For more information, please read the Bolt logs doc [here](https://puppet.com/docs/bolt/latest/logs.html#log-levels)
 
-To change the log level you can go to the Bolt Server's node group, in the _Classes_ tab add the `bolt_log_level` parameter as is shown in the the screenshot above, commit your changes and run Puppet on the node group.
+To change the log level you can go to the Bolt Server's node group, in the _Classes_ tab add the `bolt_log_level` parameter as shown in the screenshot above, commit your changes and run Puppet on the node group.
 
 ![bolt-server-params](diagrams/bolt-server-node-group.png "Bolt server parameters")
 
