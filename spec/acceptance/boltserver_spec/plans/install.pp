@@ -1,5 +1,6 @@
-plan boltserver_spec::install ()
-{
+plan boltserver_spec::install (
+
+) {
   $t = get_targets('*')
   wait_until_available($t)
 
