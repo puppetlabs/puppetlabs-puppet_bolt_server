@@ -3,4 +3,11 @@
 ---
 fixtures:
   forge_modules:
-    stdlib: "puppetlabs/stdlib"
+    peadm: "puppetlabs/peadm"
+  repositories:
+    provision: 'https://github.com/puppetlabs/provision.git'
+    stdlib: 'https://github.com/puppetlabs/puppetlabs-stdlib.git'
+  symlinks:
+    "bolt_server": "#{source_dir}" 
+    "boltserver_spec": "#{source_dir}/spec/acceptance/boltserver_spec"
+    "peadm_spec": "#{source_dir}/fixtures/modules/peadm/spec/acceptance/peadm_spec"

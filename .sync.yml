@@ -5,4 +5,36 @@
 #
 # See https://github.com/puppetlabs/pdk-templates/blob/main/config_defaults.yml
 # for the default values.
---- {}
+---
+Gemfile:
+  required:
+    ':development':
+      - gem: 'puppet-debugger'
+        version: '>= 0.18.0'
+      - gem: 'bolt'
+        version: '>= 3.10.0'
+  optional:
+    ':development':
+      - gem: 'github_changelog_generator'
+      - gem: 'octokit'
+        version: '4.21.0' # Locked due to https://github.com/octokit/octokit.rb/issues/1391
+Rakefile:
+  changelog_since_tag: '1.0.0'
+  extras:
+    - 'PuppetSyntax.exclude_paths = ["plans/**/*.pp", "spec/acceptance/**/plans/**/*.pp", "vendor/**/*"]'
+spec/spec_helper.rb:
+    mock_with: ':rspec'
+.gitignore:
+  paths:
+    - '.rerun.json'
+    - '*.tar.gz'
+    - '.modules/'
+    - '.plan_cache.json'
+    - '.resource_types/'
+    - 'bolt-debug.log'
+
+.github/workflows/auto_release.yml:
+  unmanaged: false
+.github/workflows/release.yml:
+  unmanaged: false
+
