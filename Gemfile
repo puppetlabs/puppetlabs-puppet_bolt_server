@@ -24,10 +24,9 @@ group :development do
   gem "puppet-module-posix-dev-r#{minor_version}", '~> 1.0',     require: false, platforms: [:ruby]
   gem "puppet-module-win-default-r#{minor_version}", '~> 1.0',   require: false, platforms: [:mswin, :mingw, :x64_mingw]
   gem "puppet-module-win-dev-r#{minor_version}", '~> 1.0',       require: false, platforms: [:mswin, :mingw, :x64_mingw]
-  gem "voxpupuli-puppet-lint-plugins", '>= 3.0',                 require: false
   gem "puppet-debugger", '>= 0.18.0',                            require: false
-  gem "bolt", '>= 3.10.0',                                       require: false
-  gem "github_changelog_generator",                              require: false
+  gem "bolt", '>= 3.17.0',                                       require: false
+  gem "github_changelog_generator", '>= 1.16.4',                 require: false
   gem "octokit", '4.21.0',                                       require: false
 end
 group :system_tests do
@@ -65,3 +64,4 @@ extra_gemfiles.each do |gemfile|
   end
 end
 # vim: syntax=ruby
+pdk 
