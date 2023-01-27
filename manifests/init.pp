@@ -16,7 +16,7 @@
 #
 class puppet_bolt_server (
   Sensitive[String] $puppet_token,
-  Enum['trace', 'debug', 'info', 'warn', 'error', 'fatal'] $bolt_log_level  = 'debug',
+  Enum['trace', 'debug', 'info', 'warn', 'error', 'fatal'] $bolt_log_level  = 'info',
 ) {
   package { 'puppet-tools-release':
     ensure => present,
