@@ -31,13 +31,14 @@ jobs:
     steps:
       - id: set-matrix
         run: |
-          # if github event is workflow_dispatch, set version_matrix to the version input
+          # if github event is workflow_dispatch, set matrix parameteres to the user input
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            echo '::set-output name=version_matrix::["${{ github.event.inputs.version }}"]'
-            echo '::set-output name=image_matrix::["${{ github.event.inputs.image }}"]'
+            echo 'version_matrix=["${{ github.event.inputs.version }}"]' >>  "$GITHUB_OUTPUT"
+            echo 'image_matrix=["${{ github.event.inputs.image }}"]' >> "$GITHUB_OUTPUT"
           else
-            echo '::set-output name=version_matrix::["2019.8.12","2021.7.2"]'
-            echo '::set-output name=image_matrix::["centos-7","almalinux-cloud/almalinux-8"]'
+            # set matrix parameters to real matrix values
+            echo 'version_matrix=["2019.8.12","2021.7.2"]' >> "$GITHUB_OUTPUT"
+            echo 'image_matrix=["centos-7","almalinux-cloud/almalinux-8"]' >> "$GITHUB_OUTPUT"
           fi
     outputs:
       version_matrix: ${{ steps.set-matrix.outputs.version_matrix }}
