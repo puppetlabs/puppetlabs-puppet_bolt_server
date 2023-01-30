@@ -150,8 +150,7 @@ jobs:
           buildevents cmd $TRACE_ID $STEP_ID 'bundle exec bolt plan run boltserver_spec::install' -- \
             bundle exec bolt plan run boltserver_spec::install \
               --inventoryfile spec/fixtures/litmus_inventory.yaml \
-              --modulepath spec/fixtures/modules \
-              architecture=${{ matrix.architecture }}
+              --modulepath spec/fixtures/modules
 
       - name: 'Wait as long as the file ${HOME}/pause file is present'
         if: ${{ always() && github.event.inputs.ssh-debugging == 'true' }}
