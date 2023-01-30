@@ -20,6 +20,6 @@ fixtures:
     format: 'https://github.com/voxpupuli/puppet-format'
     container_inventory: 'https://gitlab.com/nwops/bolt-container_inventory'
   symlinks:
-    "bolt_server": "#{source_dir}" 
+    "puppet_bolt_server": "#{source_dir}" 
     "boltserver_spec": "#{source_dir}/spec/acceptance/boltserver_spec"
     "peadm_spec": "#{source_dir}/spec/fixtures/modules/peadm/spec/acceptance/peadm_spec"
