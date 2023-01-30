@@ -1,3 +1,4 @@
 ---
 ignore:
   - 'spec/acceptance/boltserver_spec/plans/*'
+  - 'spec/acceptance/boltserver_spec/files/local_plan/plans/*'
