@@ -8,6 +8,7 @@ before_script:
   - sudo dpkg -i puppet-tools-release-xenial.deb
   - sudo apt-get update
   - sudo apt-get install pdk -y
+  - pdk --version
 script:
   - 'pdk $CHECK'
 stages:
