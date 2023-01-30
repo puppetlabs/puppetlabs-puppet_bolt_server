@@ -2,16 +2,16 @@
 name: "Install test"
 
 on:
+  pull_request:
+    branches: [main]
+    types: [review_requested]
+
   workflow_dispatch:
     inputs:
       image:
         description: 'GCP image for test cluster'
         required: true
         default: 'almalinux-cloud/almalinux-8'
-      architecture:
-        description: 'PE architecture to test'
-        required: true
-        default: 'large'
       version:
         description: 'PE version to install'
         required: true
@@ -26,8 +26,26 @@ env:
   HONEYCOMB_DATASET: litmus tests
 
 jobs:
+  build-matrix:
+    runs-on: ubuntu-latest
+    steps:
+      - id: set-matrix
+        run: |
+          # if github event is workflow_dispatch, set version_matrix to the version input
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo '::set-output name=version_matrix::["${{ github.event.inputs.version }}"]'
+            echo '::set-output name=image_matrix::["${{ github.event.inputs.image }}"]'
+          else
+            echo '::set-output name=version_matrix::["2019.8.12","2021.7.2"]'
+            echo '::set-output name=image_matrix::["centos-7","almalinux-cloud/almalinux-8"]'
+          fi
+    outputs:
+      version_matrix: ${{ steps.set-matrix.outputs.version_matrix }}
+      image_matrix: ${{ steps.set-matrix.outputs.image_matrix }}
+
   test-install:
-    name: "PE ${{ matrix.version }} ${{ matrix.architecture }} on ${{ matrix.image }}"
+    needs: build-matrix
+    name: "PE ${{ matrix.version }} on ${{ matrix.image }}"
     runs-on: ubuntu-20.04
     env:
       BOLT_GEM: true
@@ -37,12 +55,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        architecture:
-          - "${{ github.event.inputs.architecture }}"
-        version:
-          - "${{ github.event.inputs.version }}"
-        image:
-          - "${{ github.event.inputs.image }}"
+        version: ${{ fromJson(needs.build-matrix.outputs.version_matrix) }}
+        image: ${{ fromJson(needs.build-matrix.outputs.image_matrix) }}
 
     steps:
       - name: 'Start SSH session'
@@ -85,7 +99,7 @@ jobs:
         run: |
           echo ::group::honeycomb
             buildevents step $TRACE_ID $STEP_ID $STEP_START 'Set up environment'
-            echo STEP_ID=${{ matrix.architecture }}-${{ matrix.image }}-provision >> $GITHUB_ENV
+            echo STEP_ID=${{ matrix.image }}-provision >> $GITHUB_ENV
             echo STEP_START=$(date +%s) >> $GITHUB_ENV
           echo ::endgroup::
 
@@ -106,7 +120,7 @@ jobs:
                 --modulepath spec/fixtures/modules \
                 provider=provision_service \
                 image=${{ matrix.image }} \
-                architecture=${{ matrix.architecture }}
+                architecture=large
           echo ::endgroup::
 
           echo ::group::info:request
@@ -122,7 +136,7 @@ jobs:
         run: |
           echo ::group::honeycomb
             buildevents step $TRACE_ID $STEP_ID $STEP_START 'Provision test cluster'
-            echo STEP_ID=${{ matrix.architecture }}-${{ matrix.image }}-install >> $GITHUB_ENV
+            echo STEP_ID=${{ matrix.image }}-install >> $GITHUB_ENV
             echo STEP_START=$(date +%s) >> $GITHUB_ENV
           echo ::endgroup::
 
@@ -133,7 +147,7 @@ jobs:
             bundle exec bolt plan run peadm_spec::install_test_cluster \
               --inventoryfile spec/fixtures/litmus_inventory.yaml \
               --modulepath spec/fixtures/modules \
-              architecture=${{ matrix.architecture }} \
+              architecture=large \
               version=${{ matrix.version }}
 
       - name: "Honeycomb: Record install time"
@@ -141,7 +155,7 @@ jobs:
         run: |
           echo ::group::honeycomb
             buildevents step $TRACE_ID $STEP_ID $STEP_START 'Install PE on test cluster'
-            echo STEP_ID=${{ matrix.architecture }}-${{ matrix.image }}-tear_down >> $GITHUB_ENV
+            echo STEP_ID=${{ matrix.image }}-tear_down >> $GITHUB_ENV
             echo STEP_START=$(date +%s) >> $GITHUB_ENV
           echo ::endgroup::
 
