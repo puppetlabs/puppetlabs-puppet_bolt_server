@@ -24,6 +24,7 @@ describe 'puppet_bolt_server' do
         it { is_expected.to contain_file('puppet-token') }
         it { is_expected.to contain_file('/root/.puppetlabs/bolt/bolt-project.yaml') }
         it { is_expected.to contain_file('/root/.puppetlabs/etc/bolt/bolt-defaults.yaml') }
+        it { is_expected.to contain_file('/var/log/puppetlabs/bolt-server') }
         it { is_expected.to contain_file('/var/log/puppetlabs/bolt-server/bolt-server.log') }
       end
     end
