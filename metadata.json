@@ -4,7 +4,9 @@
   "author": "Puppet Solutions Architects",
   "summary": "Install Bolt on a PE compiler",
   "license": "Apache-2.0",
-  "source": "",
+  "source": "https://github.com/puppetlabs/puppetlabs-puppet_bolt_server",
+  "project_page": "https://github.com/puppetlabs/puppetlabs-puppet_bolt_server",
+  "issues_url": "https://github.com/puppetlabs/puppetlabs-puppet_bolt_server/issues",
   "dependencies": [
     {
       "name": "puppetlabs/stdlib",
