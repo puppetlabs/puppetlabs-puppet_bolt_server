@@ -8,15 +8,12 @@ before_script:
   - sudo dpkg -i puppet-tools-release-xenial.deb
   - sudo apt-get update
   - sudo apt-get install pdk -y
+  - pdk --version
 script:
   - 'pdk $CHECK'
 stages:
   - static
   - spec
-  - acceptance
-  -
-    if: tag =~ ^v\d
-    name: deploy
 jobs:
   fast_finish: true
   include:
@@ -27,14 +24,10 @@ jobs:
       env: CHECK="test unit --puppet-version=6.21.1" # PE 2019.8
       stage: spec
     -
-      env: CHECK="test unit --puppet-version=7.4.1"
+      env: CHECK="test unit --puppet-version=7.4.1" # PE 2021.7
       stage: spec
-    -
-      env: DEPLOY_TO_FORGE=yes
-      stage: deploy
 branches:
   only:
     - main
-    - /^v\d/
 notifications:
   email: false

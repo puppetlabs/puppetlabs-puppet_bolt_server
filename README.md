@@ -74,6 +74,7 @@ The `puppet_bolt_server` module performs these activities:
 After completing the installation steps, your Bolt server should have these files:
 
 - `/root/.puppetlabs/etc/bolt/bolt-defaults.yaml`
+- `/root/.puppetlabs/bolt/bolt-project.yaml`
 - `/root/.puppetlabs/token`
 
 To test that everything is configured properly, you can run any Bolt plan that runs a PuppetDB query, such as this test plan:
@@ -99,6 +100,18 @@ $ less /var/log/puppetlabs/puppetdb/puppetdb-access.log
 
 127.0.0.1 - - [01/Nov/2022:15:56:21 +0000] "POST /pdb/query/v4 HTTP/1.1" 200 1793 "-" "HTTPClient/1.0 (2.8.3, ruby 2.7.6 (2022-04-12))" 99 21 -
 ```
+
+## Logs
+
+By default, this module will create the log file under
+
+    /var/log/puppetlabs/bolt-server/bolt-server.log
+
+The log level is set to 'debug'. For more information, please read the Bolt logs doc [here](https://puppet.com/docs/bolt/latest/logs.html#log-levels)
+
+To change the log level you can go to the Bolt Server's node group, in the _Classes_ tab add the `bolt_log_level` parameter as shown in the screenshot above, commit your changes and run Puppet on the node group.
+
+![bolt-server-params](diagrams/bolt-server-node-group.png "Bolt server parameters")
 
 ### Run a plan via `taskplan` from the primary server
 
