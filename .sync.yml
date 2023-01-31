@@ -12,12 +12,16 @@ Gemfile:
       - gem: 'puppet-debugger'
         version: '>= 0.18.0'
       - gem: 'bolt'
-        version: '>= 3.10.0'
+        version: '>= 3.17.0'
   optional:
     ':development':
       - gem: 'github_changelog_generator'
+        version: '1.15.2'
       - gem: 'octokit'
         version: '4.21.0' # Locked due to https://github.com/octokit/octokit.rb/issues/1391
+    ':system_tests':
+      - gem: 'concurrent-ruby'
+        version: '1.1.10'
 Rakefile:
   changelog_user: "puppetlabs"
   changelog_since_tag: '0.1.0'
@@ -38,4 +42,5 @@ spec/spec_helper.rb:
   unmanaged: false
 .github/workflows/release.yml:
   unmanaged: false
-
+.travis.yml:
+  unmanaged: true
