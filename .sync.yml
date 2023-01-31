@@ -19,6 +19,7 @@ Gemfile:
       - gem: 'octokit'
         version: '4.21.0' # Locked due to https://github.com/octokit/octokit.rb/issues/1391
 Rakefile:
+  changelog_user: "puppetlabs"
   changelog_since_tag: '1.0.0'
   extras:
     - 'PuppetSyntax.exclude_paths = ["plans/**/*.pp", "spec/acceptance/**/plans/**/*.pp", "vendor/**/*"]'
