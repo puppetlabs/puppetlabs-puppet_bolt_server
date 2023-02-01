@@ -1,13 +1,15 @@
 {
   "name": "puppetlabs-puppet_bolt_server",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "puppetlabs",
   "summary": "Install Bolt on a PE compiler",
   "license": "Apache-2.0",
   "source": "https://github.com/puppetlabs/puppetlabs-puppet_bolt_server",
   "project_page": "https://github.com/puppetlabs/puppetlabs-puppet_bolt_server",
   "issues_url": "https://github.com/puppetlabs/puppetlabs-puppet_bolt_server/issues",
-  "dependencies": [],
+  "dependencies": [
+
+  ],
   "operatingsystem_support": [
     {
       "operatingsystem": "CentOS",
