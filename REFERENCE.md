@@ -30,17 +30,17 @@ include puppet_bolt_server
 
 The following parameters are available in the `puppet_bolt_server` class:
 
-* [`puppet_token`](#puppet_token)
-* [`bolt_log_level`](#bolt_log_level)
+* [`puppet_token`](#-puppet_bolt_server--puppet_token)
+* [`bolt_log_level`](#-puppet_bolt_server--bolt_log_level)
 
-##### <a name="puppet_token"></a>`puppet_token`
+##### <a name="-puppet_bolt_server--puppet_token"></a>`puppet_token`
 
 Data type: `Sensitive[String]`
 
 This should be a token with permissions to launch Orchestrator jobs.
 Generate a token with a lifetime of 1 year: puppet access login --lifetime 1y
 
-##### <a name="bolt_log_level"></a>`bolt_log_level`
+##### <a name="-puppet_bolt_server--bolt_log_level"></a>`bolt_log_level`
 
 Data type: `Enum['trace', 'debug', 'info', 'warn', 'error', 'fatal']`
 
