@@ -38,6 +38,12 @@ The `puppet_bolt_server` module performs these activities:
 
    Note: you only need to install this module if you want to use `apply()` in your plans.
 
+1. `taskplan`
+  
+   We recommend installing the [`taskplan` module](https://forge.puppet.com/modules/reidmv/taskplan).  The `taskplan` module allows you to run a task that uses Bolt to run a plan. 
+
+   You can also create a task yourself or use any task that can run a bolt plan on the bolt server.
+
 ## Installation
 
 **Quickstart:** Use the PE console to configure the `puppet_bolt_server` in your existing PE server.
@@ -109,15 +115,10 @@ To change the log level you can go to the Bolt Server's node group, in the _Clas
 
 ![bolt-server-params](https://raw.githubusercontent.com/puppetlabs/puppetlabs-puppet_bolt_server/main/diagrams/bolt-server-node-group.png "Bolt server parameters")
 
-### Run a plan via `taskplan` from the primary server
 
-We recommend installing the [`taskplan` module](https://forge.puppet.com/modules/reidmv/taskplan).  The `taskplan` module allows you to run a task that uses Bolt to run a plan.
+## Run a plan on the Bolt server
 
-You can also create a task yourself or use any task that can run a bolt plan on the bolt server.
-
-#### Run a plan on the Bolt server
-
-This is an overview of the internal process when you offload plan execution from your PE primary server to a Bolt server:
+This is an overview of the internal process when you offload plan execution from your PE primary server to a Bolt server. Please note that we recommend using `taskplan` but it can also be a different task that starts a Bolt plan:
 
 1. Someone requests Orchestrator to run the `taskplan` task on the Bolt server.
 1. The `taskplan` task runs on the Bolt server.
@@ -126,7 +127,7 @@ This is an overview of the internal process when you offload plan execution from
 
 ![bolt-server-process](https://raw.githubusercontent.com/puppetlabs/puppetlabs-puppet_bolt_server/main/diagrams/bolt-server-exec-processes.png "Bolt server execution process")
 
-#### Example 1
+### Example 1
 
 This example uses `puppet task run` to run the `taskplan` task on the Bolt server.
 
@@ -145,7 +146,7 @@ This triggers a `taskplan` task run, and the task runs the plan on the Bolt serv
 
 This offloads plan execution from Orchestrator to a dedicated Bolt server, which alleviates CPU and memory load on the primary server.
 
-#### Example 2
+### Example 2
 
 This example uses the Orchestrator API to trigger a task run. You can do this from any system connected to your PE primary server (over port 8143) and that has a Puppet RBAC token.
 
