@@ -9,8 +9,6 @@
 Gemfile:
   required:
     ':development':
-      - gem: 'puppet-debugger'
-        version: '>= 0.18.0'
       - gem: 'bolt'
         version: '>= 3.17.0'
   optional:
@@ -40,8 +38,10 @@ spec/spec_helper.rb:
     - 'bolt-debug.log'
 
 .github/workflows/auto_release.yml:
-  unmanaged: false
+  unmanaged: true
 .github/workflows/release.yml:
+  unmanaged: true
+.github/workflows/spec.yml:
   unmanaged: false
 .travis.yml:
-  unmanaged: true
+  delete: true

@@ -31,7 +31,7 @@ jobs:
     steps:
       - id: set-matrix
         run: |
-          # if github event is workflow_dispatch, set matrix parameteres to the user input
+          # if github event is workflow_dispatch, set matrix parameters to the user input
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             echo 'version_matrix=["${{ github.event.inputs.version }}"]' >>  "$GITHUB_OUTPUT"
             echo 'image_matrix=["${{ github.event.inputs.image }}"]' >> "$GITHUB_OUTPUT"

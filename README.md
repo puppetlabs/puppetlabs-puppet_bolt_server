@@ -20,26 +20,29 @@ The `puppet_bolt_server` module performs these activities:
 
 * Install Bolt on the node.
 * Create the `/root/.puppetlabs/etc/bolt/bolt-defaults.yaml` file with custom configuration to:
-    * Use the PCP transport.
-    * Use the local PuppetDB for queries.
-    * Consume a Puppet token.
+  * Use the PCP transport.
+  * Use the local PuppetDB for queries.
+  * Consume a Puppet token.
 
 ## Dependencies
 
 1. `apply_helpers`
-    - The `puppet_bolt_server` depends on the [`apply_helpers`](https://forge.puppet.com/modules/puppetlabs/apply_helpers/readme)  module, it will install helper tasks that are used by the `apply()` function in Bolt.
 
-      To install it, make sure to add it to the Puppetfile in your control-repo
+   * The `puppet_bolt_server` depends on the [`apply_helpers`](https://forge.puppet.com/modules/puppetlabs/apply_helpers/readme)  module, it will install helper tasks that are used by the `apply()` function in Bolt.
 
-      ```
-      mod 'puppetlabs-apply_helpers', '0.3.0'
-      ```
+   To install it, make sure to add it to the Puppetfile in your control-repo
+
+   ```ruby
+   mod 'puppetlabs-apply_helpers', '0.3.0'
+   ```
+
+   Note: you only need to install this module if you want to use `apply()` in your plans.
+
 1. `taskplan`
-    - The [`taskplan`](https://forge.puppet.com/modules/reidmv/taskplan/plans) module allows us to run Puppet task plans, using Bolt, via a task
+  
+   We recommend installing the [`taskplan` module](https://forge.puppet.com/modules/reidmv/taskplan).  The `taskplan` module allows you to run a task that uses Bolt to run a plan. 
 
-      ```
-      mod 'reidmv-taskplan', '0.2.3'
-      ```
+   You can also create a task yourself or use any task that can run a bolt plan on the bolt server.
 
 ## Installation
 
@@ -64,8 +67,9 @@ The `puppet_bolt_server` module performs these activities:
     Value: '<PUPPET_TOKEN>'
    ```
 
-   - We recommend creating a service user inside PE RBAC and choosing an appropriate lifetime for its token.
-   - Use this command to generate a token with a one-year lifetime: `puppet access login --lifetime 1y`
+   * We recommend creating a service user inside PE RBAC and choosing an appropriate lifetime for its token.
+   * Use this command to generate a token with a one-year lifetime: `puppet access login --lifetime 1y`
+
 1. Commit your changes.
 1. Run Puppet on the Bolt Server node group.
 
@@ -73,13 +77,13 @@ The `puppet_bolt_server` module performs these activities:
 
 After completing the installation steps, your Bolt server should have these files:
 
-- `/root/.puppetlabs/etc/bolt/bolt-defaults.yaml`
-- `/root/.puppetlabs/bolt/bolt-project.yaml`
-- `/root/.puppetlabs/token`
+* `/root/.puppetlabs/etc/bolt/bolt-defaults.yaml`
+* `/root/.puppetlabs/bolt/bolt-project.yaml`
+* `/root/.puppetlabs/token`
 
 To test that everything is configured properly, you can run any Bolt plan that runs a PuppetDB query, such as this test plan:
 
-```
+```puppet
 # /root/Projects/local_plan/plans/test.pp
 
 plan local_plan::test(
@@ -95,7 +99,7 @@ Run the test plan with:
 
 You should get the PuppetDB query results in the terminal. If you inspect the `puppetdb-access.log`, you should find a log with a call to the local PuppetDB returning a `200 OK` HTTP status. For example:
 
-```
+```bash
 $ less /var/log/puppetlabs/puppetdb/puppetdb-access.log
 
 127.0.0.1 - - [01/Nov/2022:15:56:21 +0000] "POST /pdb/query/v4 HTTP/1.1" 200 1793 "-" "HTTPClient/1.0 (2.8.3, ruby 2.7.6 (2022-04-12))" 99 21 -
@@ -103,45 +107,38 @@ $ less /var/log/puppetlabs/puppetdb/puppetdb-access.log
 
 ## Logs
 
-By default, this module will create the log file under
+By default, this module will create the log file under `/var/log/puppetlabs/bolt-server/bolt-server.log`.
 
-    /var/log/puppetlabs/bolt-server/bolt-server.log
-
-The log level is set to 'debug'. For more information, please read the Bolt logs doc [here](https://puppet.com/docs/bolt/latest/logs.html#log-levels)
+The log level is set to 'info' by default. For more information, please read the Bolt logs doc [here](https://puppet.com/docs/bolt/latest/logs.html#log-levels)
 
 To change the log level you can go to the Bolt Server's node group, in the _Classes_ tab add the `bolt_log_level` parameter as shown in the screenshot above, commit your changes and run Puppet on the node group.
 
-![bolt-server-params](diagrams/bolt-server-node-group.png "Bolt server parameters")
+![bolt-server-params](https://raw.githubusercontent.com/puppetlabs/puppetlabs-puppet_bolt_server/main/diagrams/bolt-server-node-group.png "Bolt server parameters")
 
-### Run a plan via `taskplan` from the primary server
 
-We recommend installing the [`taskplan` module](https://forge.puppet.com/modules/reidmv/taskplan).
+## Run a plan on the Bolt server
 
-The `taskplan` module allows you to run a task that uses Bolt to run a plan.
-
-#### Run a plan on the Bolt server
-
-This is an overview of the internal process when you offload plan execution from your PE primary server to a Bolt server:
+This is an overview of the internal process when you offload plan execution from your PE primary server to a Bolt server. Please note that we recommend using `taskplan` but it can also be a different task that starts a Bolt plan:
 
 1. Someone requests Orchestrator to run the `taskplan` task on the Bolt server.
 1. The `taskplan` task runs on the Bolt server.
 1. The task starts Bolt with the `bolt plan run` command.
 1. Bolt starts and runs the plan
 
-![bolt-server-process](diagrams/bolt-server-exec-processes.png "Bolt server execution process")
+![bolt-server-process](https://raw.githubusercontent.com/puppetlabs/puppetlabs-puppet_bolt_server/main/diagrams/bolt-server-exec-processes.png "Bolt server execution process")
 
-#### Example 1
+### Example 1
 
 This example uses `puppet task run` to run the `taskplan` task on the Bolt server.
 
 Required parameters:
 
-- Choose one of your existing, basic plans or create one that receives a parameter (such as `message`).
-- Use your Bolt server's certname.
+* Choose one of your existing, basic plans or create one that receives a parameter (such as `message`).
+* Use your Bolt server's certname.
 
 From the PE primary server CLI, run:
 
-```
+```bash
 puppet task run taskplan --params '{"plan":"<PLAN_NAME>", "params":{"message": "Hello world!"}, "debug":true}' -n <BOLT_SERVER_CERTNAME>
 ```
 
@@ -149,13 +146,13 @@ This triggers a `taskplan` task run, and the task runs the plan on the Bolt serv
 
 This offloads plan execution from Orchestrator to a dedicated Bolt server, which alleviates CPU and memory load on the primary server.
 
-#### Example 2
+### Example 2
 
 This example uses the Orchestrator API to trigger a task run. You can do this from any system connected to your PE primary server (over port 8143) and that has a Puppet RBAC token.
 
 Prepare a JSON body to run `taskplan` task, targetting the Bolt server. For example:
 
-```
+```json
 # test_params.json
 
 {
@@ -176,7 +173,7 @@ Make sure to change the `params.plan`, `params.params`, and the `scope.nodes` ac
 
 Use `curl` to trigger the Ochrestrator API and run the task:
 
-```
+```bash
 auth_header="X-Authentication: $(puppet-access show)"
 uri="https://$(puppet config print server):8143/orchestrator/v1/command/task"
 
@@ -185,23 +182,24 @@ curl -d "@test_params.json" --insecure --header "$auth_header" "$uri"
 
 ## Limitations
 
-- `puppet_bolt_server` is tested only on RHEL 7 and 8 based systems.
-- Requires Puppet >= 6.21.0 <= 7.20.0
-- This module only supports running plans from the Production environment.
-- **Warning:** There is no rate limit to run plans, and you need to pay attention to the VM specification since the available memory is directly related to how many concurrent plans you can run.
+* `puppet_bolt_server` is tested only on RHEL 7 and 8 based systems.
+* Requires Puppet >= 6.21.0 <= 7.20.0
+* This module only supports running plans from the Production environment.
+* **Warning:** There is no rate limit to run plans, and you need to pay attention to the VM specification since the available memory is directly related to how many concurrent plans you can run.
 
 ## Recommendations
 
 Based on the results of the load test, we know that each additional (concurrent) 50 plans require about 4 GiB to run successfully. As explained in the limitations section, in this early version  `puppet_bolt_server` there are no limits on memory consumption, the bolt processes will continue to use more and more memory until the system becomes completely unresponsive. In our tests, we used 24 GiB of RAM but we noticed the thin margin of memory left during the test, this is dangerous since we could run out of memory.
 
 These are the machine specs of our servers:
-  - 24 GiB RAM
-  - CPU Intel Broadwell x86/64, 6 cores
+
+* 24 GiB RAM
+* CPU Intel Broadwell x86/64, 6 cores
 
 Our recommendation is to run a maximum of 200 concurrent plans, allocating **28 GiB RAM** for it, this will give a bit of room in case of unexpected spikes of plans beyond 200.
 
 For education purposes here are two charts that show how the Bolt server will behave in the scenario of running 200 concurrent plans:
 
-![bolt-server-process](diagrams/load-testing-results-cpu-usage.png "CPU usage")
+![bolt-server-process](https://raw.githubusercontent.com/puppetlabs/puppetlabs-puppet_bolt_server/main/diagrams/load-testing-results-cpu-usage.png "CPU usage")
 
-![bolt-server-process](diagrams/load-testing-results-ram-usage.png "Memory used")
+![bolt-server-process](https://raw.githubusercontent.com/puppetlabs/puppetlabs-puppet_bolt_server/main/diagrams/load-testing-results-ram-usage.png "Memory used")
