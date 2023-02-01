@@ -7,12 +7,7 @@
   "source": "https://github.com/puppetlabs/puppetlabs-puppet_bolt_server",
   "project_page": "https://github.com/puppetlabs/puppetlabs-puppet_bolt_server",
   "issues_url": "https://github.com/puppetlabs/puppetlabs-puppet_bolt_server/issues",
-  "dependencies": [
-    {
-      "name": "puppetlabs/stdlib",
-      "version_requirement": ">= 6.0.0 <= 8.5.0"
-    }
-  ],
+  "dependencies": [],
   "operatingsystem_support": [
     {
       "operatingsystem": "CentOS",
@@ -50,7 +45,7 @@
   "requirements": [
     {
       "name": "puppet",
-      "version_requirement": ">= 6.28.0 <= 7.21.0"
+      "version_requirement": ">= 6.0.0 < 8.0.0"
     }
   ],
   "pdk-version": "2.6.1",

@@ -57,39 +57,38 @@ class puppet_bolt_server (
 
   file { '/root/.puppetlabs/bolt/bolt-project.yaml':
     ensure  => file,
-    content => to_yaml ({
-        'modulepath' => [
-          '/etc/puppetlabs/code/environments/production/site-modules',
-          '/etc/puppetlabs/code/environments/production/modules',
-        ],
-        'log'        => {
-          'bolt-debug.log'                                  => disable,
-          '/var/log/puppetlabs/bolt-server/bolt-server.log' => {
-            'append' => true,
-            'level'  => $bolt_log_level,
-          },
-        },
-    }),
+    content => @("EOT")
+      ---
+      modulepath:
+        - /etc/puppetlabs/code/environments/production/site-modules
+        - /etc/puppetlabs/code/environments/production/modules
+      log:
+        bolt-debug.log: disable
+        /var/log/puppetlabs/bolt-server/bolt-server.log:
+          append: true
+          level: ${bolt_log_level}
+      | EOT
+    ,
     require => File["${pl_root}/bolt"],
   }
 
   file { '/root/.puppetlabs/etc/bolt/bolt-defaults.yaml':
     ensure  => file,
-    content => to_yaml ({
-        'analytics'        => false,
-        'inventory-config' => {
-          'transport' => 'pcp',
-          'pcp'       => {
-            'cacert'           => '/etc/puppetlabs/puppet/ssl/certs/ca.pem',
-            'service-url'      => "https://${facts['puppet_server']}:8143",
-            'token-file'       => '~/.puppetlabs/token',
-            'task-environment' => 'production',
-          },
-        },
-        'puppetdb'         => {
-          'server_urls' => ['http://localhost:8080'],
-        },
-    }),
+    content => @("EOT")
+      ---
+      analytics: false
+      inventory-config:
+        transport: pcp
+        pcp:
+          cacert: /etc/puppetlabs/puppet/ssl/certs/ca.pem
+          service-url: https://${facts['puppet_server']}:8143
+          token-file: ~/.puppetlabs/token
+          task-environment: production
+      puppetdb:
+        server_urls:
+          - http://localhost:8080
+      | EOT
+    ,
     require => File['puppet-token', "${pl_root}/etc/bolt"],
   }
 }
