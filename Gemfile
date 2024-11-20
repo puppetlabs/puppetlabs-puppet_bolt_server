@@ -37,8 +37,7 @@ group :development do
   gem "rexml", '>= 3.0.0', '< 3.2.7',            require: false
   gem "bolt", '>= 3.17.0',                       require: false
   gem "github_changelog_generator", '1.15.2',    require: false
-  gem "octokit", '>=4.21.0',                       require: false
-  gem 'puppet-upgrade', git: 'https://github.com/puppetlabs/puppet-upgrade.git'
+  gem "octokit", '4.21.0',                       require: false
 end
 group :development, :release_prep do
   gem "puppet-strings", '~> 4.0',         require: false
